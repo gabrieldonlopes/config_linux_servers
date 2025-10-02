@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# --------------------------------------------------------
+# backup_minecraft_server.sh
+#
+# Description: Script para realizar backup de mundo minecraft 
+#  	       localmente e no drive google (rclone)
+# Autor: gdon - gabriellopes.zip@gmail.com
+# Version: 2.0
+# Data: 2025-10-02 11:16:04
+# --------------------------------------------------------
+
+# === IMPORTA CONFIGURAÇÃO ===
+CONF_FILE="$HOME/minecraft_backup.conf"
+if [ ! -f "$CONF_FILE" ]; then
+    echo "❌ Erro: arquivo de configuração não encontrado em $CONF_FILE"
+    exit 1
+fi
+source "$CONF_FILE"
+
+# === VERIFICAÇÕES INICIAIS ===
+if [ ! -d "$SERVER_DIR" ]; then
+  echo "[ERRO] diretório do servidor não encontrado: $SERVER_DIR"
+  exit 1
+fi
+
+mkdir -p "$BACKUP_DIR"
+
+DATE=$(date +"%Y-%m-%d_%H-%M-%S")
+BACKUP_NAME="minecraft_backup_$DATE.zip"
+
+# === FUNÇÃO TMUX ===
+tmux_cmd() {
+    tmux send-keys -t "$TMUX_SESSION:$TMUX_WINDOW" "$1" C-m
+}
+
+# === PROCESSO DE BACKUP ===
+tmux_cmd "say Iniciando backup, salvando mundo..."
+tmux_cmd "save-off"
+tmux_cmd "save-all flush"
+sleep 5
+
+echo "[INFO] Compactando arquivos..."
+zip -r "$BACKUP_DIR/$BACKUP_NAME" \
+    "$SERVER_DIR/world" \
+    "$SERVER_DIR/server.properties" \
+    "$SERVER_DIR/ops.json" \
+    "$SERVER_DIR/whitelist.json" > /dev/null 2>&1
+
+if [ -f "$BACKUP_DIR/$BACKUP_NAME" ]; then
+    echo "[INFO] Backup criado com sucesso: $BACKUP_NAME"
+else
+    echo "[ERRO] Falha ao criar backup. Abortando envio."
+    exit 1
+fi
+
+# === ENVIO PARA O GOOGLE DRIVE ===
+echo "[INFO] Enviando backup para o Google Drive..."
+rclone copy "$BACKUP_DIR/$BACKUP_NAME" "$RCLONE_REMOTE" --progress
+if [ $? -eq 0 ]; then
+    echo "[INFO] Upload concluído com sucesso."
+else
+    echo "[ERRO] Falha ao enviar backup para o Google Drive."
+fi
+
+# === LIMPEZA LOCAL ===
+echo "[INFO] Limpando backups antigos locais, mantendo apenas os 2 mais recentes..."
+ls -tp "$BACKUP_DIR"/minecraft_backup_*.zip | grep -v '/$' | tail -n +3 | xargs -r rm --
+
+# === LIMPEZA REMOTA ===
+echo "[INFO] Limpando backups antigos no Google Drive, mantendo apenas os 2 mais recentes..."
+remote_files=$(rclone lsf --max-depth 1 --files-only --format "pt" "$RCLONE_REMOTE" | sort -r)
+total_files=$(echo "$remote_files" | wc -l)
+files_to_delete=$((total_files - 2))
+
+if [ $files_to_delete -gt 0 ]; then
+    files_for_deletion=$(echo "$remote_files" | tail -n $files_to_delete)
+    echo "$files_for_deletion" | while read -r file; do
+        echo "[INFO] Deletando arquivo remoto antigo: $file"
+        rclone deletefile "$RCLONE_REMOTE/$file"
+    done
+else
+    echo "[INFO] Não há arquivos antigos para deletar no Google Drive."
+fi
+
+# === FINALIZA ===
+tmux_cmd "save-on"
+tmux_cmd "say Backup concluído com sucesso."
+
+echo "Backup salvo em: $BACKUP_DIR/$BACKUP_NAME"
+
+# --------------------------------------------------------
+# Fim do script
+# --------------------------------------------------------
