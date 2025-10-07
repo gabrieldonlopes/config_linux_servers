@@ -23,7 +23,7 @@ Ele funciona tanto para **TCP** quanto para **UDP**, e você pode especificar a 
 
 1. Instale o arquivo via github `port-forward.sh`:
    ```bash
-    wget https://raw.githubusercontent.com/gabrieldonlopes/config_linux_servers/main/port-forward.sh
+    wget https://raw.githubusercontent.com/gabrieldonlopes/config_linux_servers/refs/heads/main/port-forwarding.sh
     ```
 2. Tornar o arquivo executável:
     ```bash

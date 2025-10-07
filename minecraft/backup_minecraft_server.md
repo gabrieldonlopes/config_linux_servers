@@ -25,7 +25,7 @@ Este script realiza **backup automático do servidor de Minecraft**, compacta os
 1. Baixe o script:
 
    ```bash
-   wget https://raw.githubusercontent.com/gabrieldonlopes/config_linux_servers/main/backup_minecraft_server.sh
+   wget https://raw.githubusercontent.com/gabrieldonlopes/config_linux_servers/refs/heads/main/minecraft/backup_minecraft_server
    ```
 
 2. Torne-o executável:

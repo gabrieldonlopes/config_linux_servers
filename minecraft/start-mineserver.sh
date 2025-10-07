@@ -1,16 +1,20 @@
 #!/bin/bash
 
 # --------------------------------------------------------
-# start-pzserver.sh
+# start-minecraft.sh
 #
-# Descrição: Script para iniciar servidor Project Zomboid em server tmux
+# Descrição: Script para iniciar servidor Minecraft baseado em tmux
 # Autor: gdon - gabriellopes.zip@gmail.com
-# Versão: 2.1v
-# Data: 2025-10-07 16:23:00
+# Versão: 2.2v
+# Data: 2025-10-07 16:22:00
 # --------------------------------------------------------
 
-CONF_FILE="/home/gdon/minecraft-config/pzserver.conf"
+CONF_FILE="/home/gdon/minecraft-config/server.conf"
 
+# --------------------------------------------------------
+# Função: carregar_config
+# Lê as variáveis do arquivo .conf
+# --------------------------------------------------------
 carregar_config() {
     if [ ! -f "$CONF_FILE" ]; then
         echo "Erro: arquivo de configuração $CONF_FILE não encontrado!"
@@ -19,14 +23,19 @@ carregar_config() {
     source "$CONF_FILE"
 }
 
+# --------------------------------------------------------
+# Função: iniciar_servidor
+# Inicia o servidor Minecraft dentro de uma sessão e janela tmux específicas
+# --------------------------------------------------------
 iniciar_servidor() {
     echo "=========================================="
-    echo "Iniciando servidor Project Zomboid"
+    echo "Iniciando servidor Minecraft"
     echo "Diretório: $SERVER_DIR"
     echo "Usuário: $USER_TO_RUN"
     echo "Sessão tmux: $TMUX_SESSION"
     echo "Janela tmux: $TMUX_WINDOW"
-    echo "Script: $SCRIPT"
+    echo "Memória mínima: $MIN_RAM"
+    echo "Memória máxima: $MAX_RAM"
     echo "=========================================="
 
     if [ ! -d "$SERVER_DIR" ]; then
@@ -34,13 +43,9 @@ iniciar_servidor() {
         exit 1
     fi
 
-    if [ ! -f "$SERVER_DIR/$SCRIPT" ]; then
-        echo "Erro: Script $SCRIPT não encontrado em $SERVER_DIR!"
-        exit 1
-    fi
-
-    if ! id "$USER_TO_RUN" &>/dev/null; then
-        echo "Erro: Usuário $USER_TO_RUN não existe!"
+    JAR_FILE=$(find "$SERVER_DIR" -maxdepth 1 -type f -name "*.jar" | head -n 1)
+    if [ -z "$JAR_FILE" ]; then
+        echo "Erro: arquivo .jar do servidor não encontrado em $SERVER_DIR!"
         exit 1
     fi
 
@@ -61,7 +66,7 @@ iniciar_servidor() {
 
     # Executa o servidor com o usuário especificado
     sudo -u "$USER_TO_RUN" tmux send-keys -t "${TMUX_SESSION}:${TMUX_WINDOW}" \
-        "./$SCRIPT -nosteam" C-m
+        "java -Xms$MIN_RAM -Xmx$MAX_RAM -jar '$JAR_FILE' nogui" C-m
 
     echo "Servidor iniciado na sessão tmux '${TMUX_SESSION}', janela '${TMUX_WINDOW}' como usuário '$USER_TO_RUN'."
 }
@@ -71,3 +76,7 @@ iniciar_servidor() {
 # --------------------------------------------------------
 carregar_config
 iniciar_servidor
+
+# --------------------------------------------------------
+# Fim do script
+# --------------------------------------------------------

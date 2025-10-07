@@ -84,7 +84,7 @@ RCONPassword=YourRCONPassword
 ## Script de inicialização
 1. Instale o arquivo via github `start-pzserver.sh`:
    ```bash
-    wget https://raw.githubusercontent.com/gabrieldonlopes/config_linux_servers/main/start-pzserver.sh
+    wget https://raw.githubusercontent.com/gabrieldonlopes/config_linux_servers/refs/heads/main/project_zomboid/start-pzserver.sh
     ```
 2. Tornar o arquivo executável:
     ```bash
