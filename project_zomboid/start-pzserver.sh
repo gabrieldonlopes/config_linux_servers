@@ -61,7 +61,7 @@ iniciar_servidor() {
 
     # Executa o servidor com o usuário especificado
     sudo -u "$USER_TO_RUN" tmux send-keys -t "${TMUX_SESSION}:${TMUX_WINDOW}" \
-        "./$SCRIPT -nosteam" C-m
+        "cd '$SERVER_DIR' && ./$SCRIPT -nosteam" C-m
 
     echo "Servidor iniciado na sessão tmux '${TMUX_SESSION}', janela '${TMUX_WINDOW}' como usuário '$USER_TO_RUN'."
 }
