@@ -1,0 +1,14 @@
+[Unit]
+Description=Inicia sessão tmux para gms
+After=network.target
+
+[Service]
+User=gms
+WorkingDirectory=/home/gms
+ExecStart=/usr/bin/bash -lc '/home/gms/scripts/start-gms-session.sh'
+Environment=TMUX_TMPDIR=/tmp/tmux-%i
+Type=simple
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
