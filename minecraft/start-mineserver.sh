@@ -66,7 +66,7 @@ iniciar_servidor() {
 
     # Executa o servidor com o usuário especificado
     sudo -u "$USER_TO_RUN" tmux send-keys -t "${TMUX_SESSION}:${TMUX_WINDOW}" \
-        "cd '$SERVER_DIR' && java -Xms$MIN_RAM -Xmx$MAX_RAM -jar '$JAR_FILE' nogui" C-m
+          "cd '$SERVER_DIR' && java -Xms$MIN_RAM -Xmx$MAX_RAM -jar '$JAR_FILE' nogui >> /var/log/minecraft/minecraft.log" C-m
 
     echo "Servidor iniciado na sessão tmux '${TMUX_SESSION}', janela '${TMUX_WINDOW}' como usuário '$USER_TO_RUN'."
 }
