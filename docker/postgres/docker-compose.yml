@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: server-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: psql
+      POSTGRES_PASSWORD: senha
+      POSTGRES_DB: db
+    volumes:
+      - /vault/postgres-data:/var/lib/postgresql/
+
+    ports:
+      - "5433:5432"

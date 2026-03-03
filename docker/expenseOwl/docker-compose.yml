@@ -1,0 +1,8 @@
+services:
+  expenseowl:
+    image: tanq16/expenseowl:main
+    restart: unless-stopped
+    ports:
+      - 4000:8080 # change 5006 to what you want to expose on
+    volumes:
+      - /vault/expenseowl/data:/app/data

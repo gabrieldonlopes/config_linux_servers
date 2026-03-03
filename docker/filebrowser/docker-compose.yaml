@@ -1,0 +1,38 @@
+services:
+  filebrowser:
+    image: gtstef/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - "8200:80"
+    environment:
+      - TZ=America/Sao_Paulo
+      - FILEBROWSER_ONLYOFFICE_SECRET=segredo_muito_segredudo
+    volumes:
+      - ./config.yaml:/home/filebrowser/data/config.yaml
+      - /vault/documents:/documents
+      - /vault/movies:/movies
+      - /vault/photos:/photos
+      - /vault/filebrowser-data:/home/filebrowser/data
+
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice
+    restart: unless-stopped
+    ports:
+      - "8300:80"
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=segredo_muito_segredudo
+      - DOCUMENT_SERVER_URL=http://onlyoffice:80
+    networks:
+      - document-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  document-network:
+    driver: bridge

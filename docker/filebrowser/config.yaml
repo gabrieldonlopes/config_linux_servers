@@ -1,0 +1,26 @@
+server:
+  port: 80
+  sources:
+    - path: /documents
+      name: Documentos
+    - path: /photos
+      name: Fotos
+    - path: /movies
+      name: Vídeos
+      config:
+        defaultEnabled: true
+frontend:
+  name: "FileBrowser"
+auth:
+  adminUsername: admin
+  adminPassword: admin
+  methods:
+    password:
+      enabled: true
+integrations:
+  media:
+    ffmpegPath: "/usr/local/bin"
+  office:
+    url: "http://100.99.100.64:8300"   # ip tailscale
+    internalUrl: "http://onlyoffice:80"
+    secret: segredo_segredudo
